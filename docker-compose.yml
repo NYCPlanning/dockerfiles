@@ -23,7 +23,7 @@ services:
       - "./pelias.json:/code/pelias.json"
   api:
     depends_on: [ "baseimage" ]
-    image: pelias/api
+    image: pelias/api:master
     container_name: pelias_api
     restart: always
     environment: [ "PORT=4000" ]
