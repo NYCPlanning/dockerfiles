@@ -12,12 +12,11 @@ if ! [ $(curl --output /dev/null --silent --head --fail http://localhost:9200) ]
     done
 fi
 
-# assuming elasticsearch is already running
+# assuming elasticsearch and pip are already running
 
 # start the containers
 # note: the -d flag will background the logs
-docker-compose up -d interpolation;
+# docker-compose up -d interpolation;
 docker-compose up -d placeholder;
-docker-compose up -d pip-service;
+# docker-compose up -d pip-service;
 docker-compose up -d api;
-
