@@ -54,8 +54,7 @@ services:
   nycpad:
     depends_on: [ "baseimage" ]
     build:
-      # context: "https://github.com/nycplanning/labs-geocoder-api.git"
-      context: ../labs-geocoder-api
+      context: "https://github.com/nycplanning/labs-geocoder-api.git"
     container_name: pelias_nycpad
     networks: [ "pelias" ]
     volumes:
