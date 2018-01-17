@@ -29,7 +29,7 @@
       "leveldbpath": "/tmp",
       "datapath": "/data/nycpad",
       "import": [{
-          "filename":"bobaddr.txt"
+          "filename":"labs-geosearch-pad-normalized"
       }]
     },
     "services": {
