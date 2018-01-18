@@ -5,6 +5,9 @@ NYC Geosearch is an JSON API for autocomplete geocoding of NYC addresses, built 
 
 ## Overview
 
+<img width="751" alt="screen shot 2018-01-18 at 1 12 07 pm" src="https://user-images.githubusercontent.com/1833820/35113991-48b04abc-fc51-11e7-8a4f-7664ddba6492.png">
+
+
 These dockerfiles allow for quickly standing up all of the services that work together to run the pelias geocoder, and is used in both production and development.  These include:
 
 - pelias api - The node.js app that handles HTTP requests
@@ -19,8 +22,6 @@ This repo (and readme) serves as "home base" for the GeoSearch project, as the d
 - [labs-geosearch-acceptance-tests](https://github.com/NYCPlanning/labs-geosearch-acceptance-tests) - nyc-specific test suite for geosearch
 
 Docker Compose allows us to quickly spin up the pelias services we need, and run scripts manually in the containers.  It also makes use of volumes and internal hostnames so the various services can communicate with each other.  See below for the commands necessary to get started.
-
-<img width="751" alt="screen shot 2018-01-18 at 1 12 07 pm" src="https://user-images.githubusercontent.com/1833820/35113991-48b04abc-fc51-11e7-8a4f-7664ddba6492.png">
 
 For more information on Pelias services, including many which we are not using here at City Planning, check out this [self-contained workshop](how_to_guide.pdf). This is the tutorial that got us started, and we recommend anyone working with Pelias start here.
 
