@@ -29,8 +29,8 @@ In both production and development, several Pelias services need to be up and ru
 
 ### Config-Driven
 Much of this environment is config-driven, and the two files you should pay attention to are:
-- `[docker-compose.yml](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/docker-compose.yml)` - configurations for each of the named services, including which docker image to run, which volumes, to use, etc
-- `[pelias.json](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/pelias.json)` - a common config file used by all of the pelias services.  This identifies the hostnames for various services, and importer-specific configuration.
+- [docker-compose.yml](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/docker-compose.yml) - configurations for each of the named services, including which docker image to run, which volumes, to use, etc
+- [pelias.json](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/pelias.json) - a common config file used by all of the pelias services.  This identifies the hostnames for various services, and importer-specific configuration.
 
 ### WhosOnFirst Data
 
