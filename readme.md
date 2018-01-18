@@ -1,285 +1,114 @@
 
-Dockerfiles for [Pelias](https://github.com/pelias/pelias) services
+Dockerfiles for NYC Geosearch Services
+NYC Geosearch is an JSON API for autocomplete geocoding of NYC addresses, built on the open source [Pelias](https://github.com/pelias/pelias) geocoder and [NYC's Property Address Database (PAD)](https://www1.nyc.gov/site/planning/data-maps/open-data.page)
 
-## Step-by-step Guide
+## Overview
 
-Check out a [self-contained workshop](how_to_guide.pdf) that explains all the moving parts that make up the Pelias geocoding engine
-and then shows you how to setup a geocoder for a single city or county right on your own machine.
+These dockerfiles allow for quickly standing up all of the services that work together to run the pelias geocoder, and is used in both production and development.  These include:
 
-- [Growing Pelias in Containers](how_to_guide.pdf)
+- pelias api - The node.js app that handles HTTP requests
+- elasticsearch - the database where all address results are stored
+- placeholder -
+- pip service - a service that provides point-in-polygon lookups, providing administrative boundaries that a point falls within (borough, city, state, etc)
 
-### Prerequisites
-1. Docker version `1.10.1` or later.
+This repo (and readme) serves as "home base" for the GeoSearch project, as the dockerfiles tie everything together.  Other relevant code for our Pelias deployment:
+- [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) - an R script that starts with the raw Property Address Database, and interpolates valid address ranges.
+- [geosearch-pad-importer](https://github.com/NYCPlanning/labs-geosearch-pad-importer) - a Pelias importer for normalized NYC PAD data.
+- [geosearch-docs](https://github.com/NYCPlanning/labs-geosearch-docs) - an interactive documentation site for the Geosearch API
+- [labs-geosearch-acceptance-tests](https://github.com/NYCPlanning/labs-geosearch-acceptance-tests) - nyc-specific test suite for geosearch
 
-1. A directory for storing downloaded datasets. Set `DATA_DIR` to the folder's path in `.env` file.
+Docker Compose allows us to quickly spin up the pelias services we need, and run scripts manually in the containers.  It also makes use of volumes and internal hostnames so the various services can communicate with each other.  See below for the commands necessary to get started.
 
-1. **OSX Only**
-    1. In Docker > Preferences > Advanced, set the CPU to `4` and memory to `12 GB`. This ensures that Docker has enough memory to run the imports and API.
+<img width="751" alt="screen shot 2018-01-18 at 1 12 07 pm" src="https://user-images.githubusercontent.com/1833820/35113991-48b04abc-fc51-11e7-8a4f-7664ddba6492.png">
 
-#### Create a Directory for Your Data
+For more information on Pelias services, including many which we are not using here at City Planning, check out this [self-contained workshop](how_to_guide.pdf). This is the tutorial that got us started, and we recommend anyone working with Pelias start here.
 
-Each of the containers will be able to access this directory internally as `/data`, source data downloaded by the containers will be stored here.
+## Running Pelias Services
+In both production and development, several Pelias services need to be up and running before address data can be imported in the database. Before any data are imported, either locally or in production, you should have mastery of the long-running Pelias services outlined here, and how to get them started/restarted.
 
-> note: the data can be fairly large, make sure you have at minimum ~15GB free space available on this volume
+### Config-Driven
+Much of this environment is config-driven, and the two files you should pay attention to are:
+- `docker-compose.yml` - configurations for each of the named services, including which docker image to run, which volumes, to use, etc
+- `pelias.json` - a common config file used by all of the pelias services.  This identifies the hostnames for various services, and importer-specific configuration.
 
-```bash
-mkdir -p /tmp/data
+### WhosOnFirst Data
+
+Aside from the addresses that will be imported into the database, Pelias needs administrative boundary data.  Mapzen maintains a global dataset of admin boundaries in the [whosonfirst](https://whosonfirst.mapzen.com/) project, but for our purposes we only need admin boundaries for New York City (importPlace 85977539).  
+
+To download whosonfirst data for a smaller slice of the planet, we add config to `pelias.json`, and then run a script that reads the config and downloads the data via the whosonfirst API.
+
+In `pelias.json`, add `whosonfirst` to the `imports` key, with `importPlace` specific to NYC:
 ```
-
-If you wish to change the location of your data directory you can simply change the `DATA_DIR` environment variable.
-
-Each importer and service has a range of different options, detailed installation and configuration instructions can be found here: https://github.com/pelias/pelias/blob/master/INSTALL.md
-For an up-to-date references of supported options you can also view the README files contained in each repository on Github.
-
-## Getting Up and Running
-
-First you'll need to create (or edit) the provided `pelias.json` file at the root of the repository.
-This is where you will specify all the details of your desired Pelias instance, such as area of coverage and data sources.
-You can reference the individual data sections below for more details on configuration.
-
-Once that's ready, the following command will build all the images and containers required:
-
-> NOTE: this command can take several hours depending on your network, hardware, and the size of the region of coverage selected in pelias.json.
-
-```bash
-./build.sh
-```
-
-once the process is complete you can list the running services:
-
-```bash
-$ docker-compose ps
-        Name                   Command           State                 Ports               
-------------------------------------------------------------------------------------------
-pelias_api             npm start                 Up       0.0.0.0:4000->4000/tcp           
-pelias_baseimage       /bin/bash                 Exit 0                                    
-pelias_elasticsearch   /bin/bash bin/es-docker   Up       0.0.0.0:9200->9200/tcp, 9300/tcp
-pelias_geonames        /bin/bash                 Exit 0
-pelias_interpolation   npm start                 Up       0.0.0.0:4300->4300/tcp
-pelias_openaddresses   /bin/bash                 Exit 0                                    
-pelias_openstreetmap   /bin/bash                 Exit 0
-pelias_pip             npm start                 Up       0.0.0.0:4200->4200/tcp
-pelias_placeholder     npm start                 Up       0.0.0.0:4100->4100/tcp           
-pelias_polylines       /bin/bash                 Exit 0                                    
-pelias_schema          /bin/bash                 Exit 0                                    
-pelias_whosonfirst     /bin/bash                 Exit 0
-```
-
-## Checking that Services are Running
-All the services should be up and running after the build script completes. The ports on which the services run should match
-the configuration in `docker-compose.yml`. You can confirm this worked correctly by visiting each one at the corresponding URLs.
-
-### API
-http://localhost:4000/v1/search?text=portland
-http://localhost:4000/v1/search?text=1901 Main St
-http://localhost:4000/v1/reverse?point.lon=-122.650095&point.lat=45.533467
-
-### Placeholder
-http://localhost:4100/demo/#eng
-
-### PIP (point in polygon)
-http://localhost:4200/-122.650095/45.533467
-
-### Interpolation
-http://localhost:4300/demo/#13/45.5465/-122.6351
-
-
-## Data Download and Import
-
-There is a script that is actually used in the `build.sh` script but can also be executed independently to update the data
-and rebuild the ES index and other databases.
-
-*Note: if you are going to run it independently, it's important to make sure the docker containers have already been built.
-This script will also shut down any running services to avoid conflicts during imports.*
-
-It is ***VERY VERY*** strongly recommended that you use the `pelias.json` config file to limit the data downloads to a region
-no larger than a region (state in US). There is too much data in larger regions for a single machine to handle. Also keep in mind
-that the amount of time a download and import will take is directly correlated with the size of the area of coverage.
-
-For TIGER data, use `imports.interpolation.download.tiger[]` (see [interpolation repo doc](https://github.com/pelias/interpolation#running-a-build-in-the-docker-container))
-
-```bash
-mdkir -p /tmp/data
-export DATA_DIR=/tmp/data
-sh ./prep_data.sh
-```
-
-### Individual Data Sources
-
-#### Who's on First
-
-*note: this guide only covers importing the admin areas (like cities, countries etc.)*
-
-##### configuration
-For WOF data, use `imports.whosonfirst.importPlace` (see [whosonfirst repo doc](https://github.com/pelias/whosonfirst#configuration))
-
-```javascript
 "imports": {
   "whosonfirst": {
     "datapath": "/data/whosonfirst",
     "importVenues": false,
     "importPostalcodes": true,
-    "importPlace": "101715829",
-    "api_key": "your-mapzen-api-key"
+    "importPlace": "85977539",
+    "api_key": "{mapzenkey}"
   }
 }
 ```
+Then, run:
 
-##### download
+`docker-compose run --rm whosonfirst npm run download` - downloads the whosonfirst data for the `importPlace` specified in `pelias.json`.  The data is now in `/tmp/whosonfirst`, and is ready to be used by the pip-service.
 
-```bash
-docker-compose run --rm whosonfirst npm run download
-```
+### Pull Images
+Before you can run the pelias services via docker, you must first get all of the images.  The Pelias team has pre-built them and hosted them on dockerhub, so we can skip the time-consuming step of building the images manually.
 
-##### import
+`docker-compose pull` will get all of the pelias images from dockerhub.
 
-```bash
-docker-compose run --rm whosonfirst bash -c 'npm start'
-```
+For our PAD importer, there is no pre-built image, and how you include it is different in production and development.  See below for how to get the PAD importer working in each environment.
 
-#### OpenAddresses
+### elasticsearch database
+To start a new database:
 
-##### configuration
-For OA data, use `imports.openaddresses.files` (see [openaddresses repo doc](https://github.com/pelias/openaddresses#configuration))
+`docker-compose up -d elasticsearch` - spin up an empty elasticsearch database
+`docker-compose run --rm schema npm run create_index` - create the `pelias` index
 
-```javascript
-"imports": {
-  "openaddresses": {
-    "datapath": "/data/openaddresses",
-    "files": [ "us/or/portland_metro.csv" ]
-  }
-}
-```
+The database is now ready to receive data from an importer.
 
-##### download
-```bash
-docker-compose run --rm openaddresses npm run download
-```
+### pip-service
+The PIP service depends on data in a directory called `whosonfirst` in the shared data directory.  This will contain all of the possible lookup geometries for various administrative levels.  
 
-##### import
-```bash
-docker-compose run --rm openaddresses npm start
-```
+`docker-compose up -d pip-service`
 
-#### OpenStreetMap
+### pelias api
+`docker-compose up -d api`
 
-Any `osm.pbf` file will work. A good source is [Metro Extracts](https://mapzen.com/data/metro-extracts/), which has
-major cities and custom areas. Download and place the file in the data directory above.
+You should be able to query the API at `http://localhost:4000/v1/autocomplete?text={sometext}`, but there's no data in the database yet!
 
-##### configuration
-Once you find a URL from which you can consistently download the data, specify it in the configuration file and
-the download script will pull it down for you.
+### PAD importer
 
-For OSM data, use `imports.openstreetmap.download[]` (see [openstreetmap repo doc](https://github.com/pelias/openstreetmap#configuration))
+The PAD importer serves two functions, it downloads the latest normalized PAD dataset, and imports each row into elasticsearch.  Each of these is run manually via an npm command.
 
-```javascript
-"imports": {
-  "openstreetmap": {
-    "download": [
-      {
-        "sourceURL": "https://s3.amazonaws.com/metro-extracts.mapzen.com/portland_oregon.osm.pbf"
-      }
-    ],
-    ...
-  }
-}
-```
+#### Development
+Our development workflow consists of editing geosearch-pad-importer code locally, running its npm scripts locally, all of which will interact with pelias services that were stood up with docker-compose commands in this repo.  
 
-###### download
+The geosearch-pad-importer contains its own `pelias.json` for local development.  This contains references to services that work outside of the docker-compose world.  
 
-Using the download script in the container:
+With the rest of the pelias services up and running, we can manually run the pad importer's npm scripts, specifying the development `pelias.json` as an environment variable:
+`PELIAS_CONFIG=./pelias.json npm run download` - downloads the latest normalized PAD data.
+`PELIAS_CONFIG=./pelias.json npm start` - starts the import (this can take over an hour)
 
-```bash
-docker-compose run --rm openstreetmap npm run download
-```
+Once the import starts, you can check the database to see that things are being added properly:
+`curl http://localhost:9200/_cat/indices?v` - Shows document counts, etc, for the `pelias` index.
+`curl http://localhost:9200/_search?pretty=true&q=*:*&size=50` - returns the first 50 results in the `pelias` index.
 
-Or, download the data by other means such as `wget` (example for Singapore):
+#### Production
+For our PAD importer, there is no pre-built image.  `docker-compose.yml` contains a reference to the github repository.
+`docker-compose build nycpad` will download this repository and build it into a docker image.
 
-```bash
-wget -qO- https://s3.amazonaws.com/metro-extracts.mapzen.com/singapore.osm.pbf > /tmp/data/openstreetmap/extract.osm.pbf
-```
+Once the image exists, we can run the download and import scripts via docker-compose:
+`docker-compose run --rm nycpad npm run download`
+`docker-compose run --rm nycpad npm run download`
 
-##### import
+The full PAD import takes over an hour (and growing!), but results will be available immediately via the API.
 
-```bash
-docker-compose run --rm openstreetmap npm start
-```
+## Production Domain
 
-#### Geonames
+In production, we added a custom nginx configuration to handle SSL, and route traffic to the pelias api running internally on port 4000.  A sample of the custom nginx config is saved in this repo for posterity as nginx.conf
 
-##### configuration
+The nginx config should be stored in /etc/nginx/conf.d/{productiondomain}.conf
 
-You can restrict the downloader to a single country by adding a `countryCode` property in your `pelias.json`:
-
-```javascript
-"imports": {
-  "geonames": {
-    ...
-    "countryCode": "SG"
-  }
-}
-```
-
-##### download
-
-```bash
-docker-compose run --rm geonames npm run download
-```
-
-#### import
-
-```bash
-docker-compose run --rm geonames npm start
-```
-
-## Polylines
-
-##### configuration
-
-```javascript
-"imports": {
-  "polyline": {
-    "datapath": "/data/polylines",
-    "files": ["pbf_extract.polyline"]
-  }
-}
-```
-
-##### download
-The extract of the polylines is done using the OSM pbf file so that must be downloaded first. See OpenStreetMap section for details on that.
-Once the pbf extract is in place, run the following command.
-
-```bash
-docker-compose run --rm polylines sh ./docker_extract.sh
-```
-
-##### import
-
-```bash
-docker-compose run --rm polylines npm run start
-```
-
-## Setting Up Elasticsearch
-
-This will take place as part of the build script, but in the case you'd like to manually manipulate the schema,
-the following command will install the pelias schema in elasticsearch:
-
-```bash
-docker-compose run --rm schema bash -c 'node scripts/create_index.js'
-```
-
-You can confirm this worked correctly by visiting http://localhost:9200/pelias/_mapping
-
-
-## Shutting Down and Restarting
-To stop all the containers, `docker-compose down`.
-
-Restart all the containers with `docker-compose up` or `sh ./run_services.sh`.
-
-## Saving docker images as tar files
-
-Docker images can be saved for offline use with the following command:
-
-```bash
-docker images --filter 'reference=pelias/*:latest' --format '{{.Repository}}' | parallel --no-notice docker save -o '{/.}.tar' {}
-```
+This nginx config also proxies all requests that aren't API calls to the geosearch docs site, so that both the API and the docs can share the same production domain.
