@@ -73,6 +73,10 @@ The PIP service depends on data in a directory called `whosonfirst` in the share
 
 `docker-compose up -d pip-service`
 
+If the pip service is running properly with nyc data, you should see admin boundaries results if you load `http://localhost:4200/-74.00274/40.71666?layers=neighbourhood,borough,locality,localadmin,county,macrocounty,region,macroregion,dependency,country`
+
+The pip service is used by the pad importer, and appends admin boundaries to each record before pushing it to the database.  It's critical that it is up and running with the appropriate whosonfirst data before importing.
+
 ### pelias api
 `docker-compose up -d api`
 
