@@ -29,7 +29,7 @@
       "leveldbpath": "/tmp",
       "datapath": "/data/nycpad",
       "import": [{
-          "filename":"labs-geosearch-pad-normalized"
+          "filename":"labs-geosearch-pad-normalized.csv"
       }]
     },
     "services": {
