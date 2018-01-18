@@ -1,5 +1,6 @@
 
-Dockerfiles for NYC Geosearch Services
+Dockerfiles for NYC Geosearch Services.
+
 NYC Geosearch is an JSON API for autocomplete geocoding of NYC addresses, built on the open source [Pelias](https://github.com/pelias/pelias) geocoder and [NYC's Property Address Database (PAD)](https://www1.nyc.gov/site/planning/data-maps/open-data.page)
 
 ## Overview
@@ -28,8 +29,8 @@ In both production and development, several Pelias services need to be up and ru
 
 ### Config-Driven
 Much of this environment is config-driven, and the two files you should pay attention to are:
-- `docker-compose.yml` - configurations for each of the named services, including which docker image to run, which volumes, to use, etc
-- `pelias.json` - a common config file used by all of the pelias services.  This identifies the hostnames for various services, and importer-specific configuration.
+- `[docker-compose.yml](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/docker-compose.yml)` - configurations for each of the named services, including which docker image to run, which volumes, to use, etc
+- `[pelias.json](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/pelias.json)` - a common config file used by all of the pelias services.  This identifies the hostnames for various services, and importer-specific configuration.
 
 ### WhosOnFirst Data
 
@@ -111,7 +112,7 @@ The full PAD import takes over an hour (and growing!), but results will be avail
 
 ## Production Domain
 
-In production, we added a custom nginx configuration to handle SSL, and route traffic to the pelias api running internally on port 4000.  A sample of the custom nginx config is saved in this repo for posterity as nginx.conf
+In production, we added a [custom nginx configuration](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/nginx.conf) to handle SSL, and route traffic to the pelias api running internally on port 4000.  A sample of the custom nginx config is saved in this repo for posterity as nginx.conf
 
 The nginx config should be stored in /etc/nginx/conf.d/{productiondomain}.conf
 
