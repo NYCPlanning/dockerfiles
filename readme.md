@@ -107,7 +107,6 @@ For our PAD importer, there is no pre-built image.  `docker-compose.yml` contain
 
 Once the image exists, we can run the download and import scripts via docker-compose:
 `docker-compose run --rm nycpad npm run download`
-
 `docker-compose run --rm nycpad npm start`
 
 The full PAD import takes over an hour (and growing!), but results will be available immediately via the API.
