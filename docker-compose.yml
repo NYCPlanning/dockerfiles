@@ -57,6 +57,8 @@ services:
       context: "https://github.com/nycplanning/labs-geocoder-api.git"
     container_name: pelias_nycpad
     networks: [ "pelias" ]
+    environment:
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
