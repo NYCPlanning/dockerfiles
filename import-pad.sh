@@ -1,9 +1,11 @@
 #!/bin/bash
+if [ -z "$STY" ]; then exec screen -m -S import-pad /bin/bash "$0"; fi
+
 # get timestamp
-TIMESTAMP=`date +%s`
+PELIAS_TIMESTAMP=`date +%s`
 
 # set unique indexName using timestamp
-sed -i '' "s/\"pelias.*\"/\"pelias_${TIMESTAMP}\"/g" pelias.json
+sed -i  "s/\"pelias.*\"/\"pelias_${PELIAS_TIMESTAMP}\"/g" pelias.json
 
 # create index
 docker-compose run --rm schema npm run create_index
@@ -21,13 +23,14 @@ curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json'
     { "remove" : { "index" : "*", "alias" : "pelias" } }
  ]
 }
-' &&
+' | tee -a curl_log &&
 
 # set alias
 curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json' -d'
 {
     "actions" : [
-        { "add" : { "index" : "pelias_'"$TIMESTAMP"'", "alias" : "pelias" } }
+        { "add" : { "index" : "pelias_'"$PELIAS_TIMESTAMP"'", "alias" : "pelias" } }
     ]
 }
-'
+' | tee -a curl_log 
+
