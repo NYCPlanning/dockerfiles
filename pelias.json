@@ -4,6 +4,9 @@
       "host": "elasticsearch"
     }]
   },
+  "schema": {
+    "indexName": "pelias"
+  },
   "api": {
     "textAnalyzer": "libpostal",
     "services": {
