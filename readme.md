@@ -105,9 +105,15 @@ Once the import starts, you can check the database to see that things are being 
 For our PAD importer, there is no pre-built image.  `docker-compose.yml` contains a reference to the github repository.
 `docker-compose build nycpad` will download this repository and build it into a docker image.
 
-Once the image exists, we can run the download and import scripts via docker-compose:
-`docker-compose run --rm nycpad npm run download`
-`docker-compose run --rm nycpad npm start`
+The bash script `import-pad.sh` automates the import, using elasticsearch aliases to import data without affecting the current live database:
+- Modify `pelias.json` to set a unique `indexName` for the new pelias import. (The indexName will be `pelias_{unixepoch}`)  
+- Run `docker-compose run --rm schema npm run create_index` to make a new index with the unique name.
+- Run `docker-compose run --rm nycpad npm run download` to download the latest normalized pad data.
+- Run `docker-compose run --rm nycpad npm start` to start the download
+- Run a curl command to clear all `pelias` aliases in the database
+- Run a curl command to assign the alias `pelias` our uniquely named index.
+
+On subsequent runs, the process repeats.  The pelias API is just looking for an index named `pelias`, and gets data back for whichever index is properly aliased.
 
 The full PAD import takes over an hour (and growing!), but results will be available immediately via the API.
 
