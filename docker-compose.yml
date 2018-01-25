@@ -35,8 +35,8 @@ services:
   geosearchapi:
     depends_on: [ "baseimage" ]
     build:
-      # context: "https://github.com/nycplanning/labs-geosearch-api"
-      context: ../labs-geosearch-api # for local development
+      context: "https://github.com/nycplanning/labs-geosearch-api"
+      # context: ../labs-geosearch-api # for local development
     container_name: geosearch_api
     restart: always
     environment: [ "PORT=4300" ]
