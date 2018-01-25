@@ -32,6 +32,18 @@ services:
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "libpostaldata:/usr/share/libpostal"
+  geosearchapi:
+    depends_on: [ "baseimage" ]
+    build:
+      # context: "https://github.com/nycplanning/labs-geosearch-api"
+      context: ../labs-geosearch-api # for local development
+    container_name: geosearch_api
+    restart: always
+    environment: [ "PORT=4300" ]
+    ports: [ "4300:4300" ]
+    networks: [ "pelias" ]
+    volumes:
+      - "./pelias.json:/code/pelias.json"
   placeholder:
     depends_on: [ "baseimage" ]
     image: pelias/placeholder
