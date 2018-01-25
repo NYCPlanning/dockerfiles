@@ -5,7 +5,7 @@
     }]
   },
   "schema": {
-    "indexName": "pelias"
+    "indexName": "pelias_1516830533"
   },
   "api": {
     "textAnalyzer": "libpostal",
@@ -37,7 +37,8 @@
     },
     "services": {
       "pip": {
-        "url": "http://pip-service:4200"
+        "url": "http://pip-service:4200",
+        "timeout": 5000
       }
     }
   }
