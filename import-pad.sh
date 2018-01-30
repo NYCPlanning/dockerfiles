@@ -1,5 +1,4 @@
 #!/bin/bash
-if [ -z "$STY" ]; then exec screen -m -S import-pad /bin/bash "$0"; fi
 
 # get timestamp
 PELIAS_TIMESTAMP=`date +%s`
@@ -23,7 +22,7 @@ curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json'
     { "remove" : { "index" : "*", "alias" : "pelias" } }
  ]
 }
-' | tee -a curl_log &&
+'
 
 # set alias
 curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json' -d'
@@ -32,4 +31,4 @@ curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json'
         { "add" : { "index" : "pelias_'"$PELIAS_TIMESTAMP"'", "alias" : "pelias" } }
     ]
 }
-' | tee -a curl_log 
+' 
