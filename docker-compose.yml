@@ -35,7 +35,7 @@ services:
   geosearchapi:
     depends_on: [ "baseimage" ]
     build:
-      context: "https://github.com/nycplanning/labs-geosearch-api"
+      context: "https://github.com/nycplanning/labs-geosearch-api.git"
       # context: ../labs-geosearch-api # for local development
     container_name: geosearch_api
     restart: always
@@ -66,7 +66,7 @@ services:
   nycpad:
     depends_on: [ "baseimage" ]
     build:
-      context: "https://github.com/nycplanning/labs-geocoder-api.git"
+      context: "https://github.com/nycplanning/labs-geosearch-pad-importer.git"
       # context: ../labs-geosearch-pad-importer # for local development
     container_name: pelias_nycpad
     networks: [ "pelias" ]
