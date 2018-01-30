@@ -1,11 +1,17 @@
 #!/bin/bash
 
+# build nycpad docker image
+docker-compose build nycpad
+
 # get timestamp
 PELIAS_TIMESTAMP=`date +%s`
 
 # set unique indexName using timestamp
-sed -i  "s/\"pelias.*\"/\"pelias_${PELIAS_TIMESTAMP}\"/g" pelias.json
-
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  sed -i '' "s/\"pelias.*\"/\"pelias_${PELIAS_TIMESTAMP}\"/g" pelias.json
+else
+  sed -i  "s/\"pelias.*\"/\"pelias_${PELIAS_TIMESTAMP}\"/g" pelias.json
+fi
 # create index
 docker-compose run --rm schema npm run create_index
 
@@ -31,4 +37,4 @@ curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json'
         { "add" : { "index" : "pelias_'"$PELIAS_TIMESTAMP"'", "alias" : "pelias" } }
     ]
 }
-' 
+'
