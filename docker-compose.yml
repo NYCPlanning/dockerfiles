@@ -70,8 +70,6 @@ services:
       # context: ../labs-geosearch-pad-importer # for local development
     container_name: pelias_nycpad
     networks: [ "pelias" ]
-    environment:
-      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
