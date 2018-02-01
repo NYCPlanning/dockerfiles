@@ -57,14 +57,24 @@ You should be able to query the API at `http://localhost:4000/v1/autocomplete?te
 
 The PAD importer serves two functions, it downloads the latest normalized PAD dataset, and imports each row into elasticsearch.  Each of these is run manually via an npm command.
 
-The pad importer is run via docker-compose in both production and development:
+The pad importer is run via docker-compose in both production and development.
 
-```
-sh import-pad.sh
-```
-This script will create new uniquely named pelias index, download the latest normalized pad data, start the import, and do some quality control checks.  Lastly, it will swap out the alias "pelias", applying it to the new index, making it the production index.
+#### Running the Import
+Once the normalized PAD data has been published, follow these steps on the server to run the import. The approach for zero downtime is to import the data into a different index on the running elasticsearch database.  Once the import is complete, the rowcounts of the source csv and the new index are compared, and the new index is promoted by adding `pelias` as an alias.
 
-Before running the importer, be sure to delete all old indices that are not being used.  There is a helper scrip `delete_index.sh` that you can use for this.
+1) Delete old indices 
+  - Use `sh list_indices.sh` to show all indices. 
+  - Use `sh list_aliases` to see which index is currently active.  
+  - Use `sh delete_index {indexname}` to delete non-active indices.
+  
+2) Run `import-pad.sh`, which does the following:
+  - Generates a new timestamped index name: `pelias_XXXXXXXXXXX`
+  - Builds nycpad-importer in a container from the latest code on github
+  - Updates `pelias.json` with the new `indexName`
+  - Creates the new index in the elasticsearch database
+  - Runs the importer
+  - Compares the rowcounts of the source csv and the new index
+  - If the rowcounts match, delete all `pelias` aliases and apply the `pelias` alias to the new index
 
 In a development environment, if you want to develop on  `geosearch-api` or `geosearch-pad-importer` locally, be sure to change the build context for each in `docker-compose.yml`.  This will tell docker-compose to build off of the local repos instead of whatever the latest is on github.
 
