@@ -45,28 +45,39 @@ echo $ES_ROWCOUNT
 echo "CSV Rowcount" $ROWCOUNT
 echo "ES Rowcount" $ES_ROWCOUNT
 
-if [ "$ROWCOUNT" -eq "$ES_ROWCOUNT" ];then
-  MESSAGE="Rowcounts Match, setting alias \`pelias\` on index \`pelias_"$PELIAS_TIMESTAMP"\`"
+docker-compose build tests
+docker-compose run tests
 
-  # clear all aliases
-  curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json' -d'
-  {
-   "actions" : [
-      { "remove" : { "index" : "*", "alias" : "pelias" } }
-   ]
-  }
-  '
+TESTS_STATUS=$(curl "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-acceptance-tests/status.json" | jq .status | sed "s/\"//g")
+echo $TESTS_STATUS
 
-  # set alias
-  curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json' -d'
-  {
-      "actions" : [
-          { "add" : { "index" : "pelias_'"$PELIAS_TIMESTAMP"'", "alias" : "pelias" } }
-      ]
-  }
-  '
+if [[ "$TESTS_STATUS" = "passed" ]]; then
+  if [ "$ROWCOUNT" -eq "$ES_ROWCOUNT" ]; then
+    MESSAGE="Rowcounts Match, setting alias \`pelias\` on index \`pelias_"$PELIAS_TIMESTAMP"\` <https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-acceptance-tests/status.json|Tests Passed>"
+
+    # clear all aliases
+    curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json' -d'
+    {
+     "actions" : [
+        { "remove" : { "index" : "*", "alias" : "pelias" } }
+     ]
+    }
+    '
+
+    # set alias
+    curl -XPOST 'localhost:9200/_aliases?pretty' -H 'Content-Type: application/json' -d'
+    {
+        "actions" : [
+            { "add" : { "index" : "pelias_'"$PELIAS_TIMESTAMP"'", "alias" : "pelias" } }
+        ]
+    }
+    '
+  else
+    MESSAGE="I am sorry to inform you that the rowcounts did not match, something went wrong with this import..."
+  fi
+
 else
-  MESSAGE="I am sorry to inform you that the rowcounts did not match, something went wrong with this import..."
+  MESSAGE="I regret to inform you that the test suite failed."
 fi
 
 echo $MESSAGE

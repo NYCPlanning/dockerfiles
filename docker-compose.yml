@@ -101,3 +101,15 @@ services:
         soft: 65536
         hard: 65536
     cap_add: [ "IPC_LOCK" ]
+  tests:
+    image: pelias/acceptancetests
+    container_name: pelias_acceptancetests
+    build:
+      # context: "https://github.com/NYCPlanning/labs-geosearch-acceptance-tests.git"
+      context: ../labs-geosearch-acceptance-tests
+    volumes:
+      - "${DATA_DIR}/tests:/usr/share/tests/data"
+    environment:
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - ACCESS_KEY_ID=${ACCESS_KEY_ID}
+      - SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY}
