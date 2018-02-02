@@ -46,7 +46,7 @@ echo "CSV Rowcount" $ROWCOUNT
 echo "ES Rowcount" $ES_ROWCOUNT
 
 docker-compose build tests
-docker-compose run tests
+docker-compose run -e ROWCOUNT="$ROWCOUNT" tests npm start
 
 TESTS_STATUS=$(curl "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-acceptance-tests/status.json" | jq .status | sed "s/\"//g")
 echo $TESTS_STATUS
