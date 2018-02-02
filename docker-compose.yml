@@ -105,8 +105,8 @@ services:
     image: pelias/acceptancetests
     container_name: pelias_acceptancetests
     build:
-      # context: "https://github.com/NYCPlanning/labs-geosearch-acceptance-tests.git"
-      context: ../labs-geosearch-acceptance-tests
+      context: "https://github.com/NYCPlanning/labs-geosearch-acceptance-tests.git"
+      # context: ../labs-geosearch-acceptance-tests // for local development
     volumes:
       - "${DATA_DIR}/tests:/usr/share/tests/data"
     environment:
