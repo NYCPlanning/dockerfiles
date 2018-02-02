@@ -110,6 +110,5 @@ services:
     volumes:
       - "${DATA_DIR}/tests:/usr/share/tests/data"
     environment:
-      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
       - ACCESS_KEY_ID=${ACCESS_KEY_ID}
       - SECRET_ACCESS_KEY=${SECRET_ACCESS_KEY}
