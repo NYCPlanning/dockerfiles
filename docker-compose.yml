@@ -9,11 +9,9 @@ services:
   baseimage:
     image: pelias/baseimage
     container_name: pelias_baseimage
-    build: baseimage
   libpostal_baseimage:
     image: pelias/libpostal_baseimage
     container_name: pelias_libpostal_baseimage
-    build: libpostal_baseimage
   schema:
     depends_on: [ "baseimage" ]
     image: pelias/schema
