@@ -66,11 +66,11 @@ The pad importer is run via docker-compose in both production and development.
 Once the normalized PAD data has been published, follow these steps on the server to run the import. The approach for zero downtime is to import the data into a different index on the running elasticsearch database.  Once the import is complete, the rowcounts of the source csv and the new index are compared, and the new index is promoted by adding `pelias` as an alias.
 
 1) Delete old indices
-  - Use `sh list_indices.sh` to show all indices.
-  - Use `sh list_aliases` to see which index is currently active.  
-  - Use `sh delete_index {indexname}` to delete non-active indices.
+  - Use `./list_indices.sh` to show all indices.
+  - Use `./list_aliases.sh` to see which index is currently active.
+  - Use `./delete_index.sh {indexname}` to delete non-active indices.
 
-2) Run `import-pad.sh`, which does the following:
+2) Run `./import-pad.sh`, which does the following:
   - Generates a new timestamped index name: `pelias_XXXXXXXXXXX`
   - Builds nycpad-importer in a container from the latest code on github
   - Updates `pelias.json` with the new `indexName`
