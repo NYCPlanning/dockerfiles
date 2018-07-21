@@ -83,8 +83,8 @@ In a development environment, if you want to develop on  `geosearch-api` or `geo
 
 ## Production Domain
 
-In production, we added a [custom nginx configuration](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/nginx.conf) to handle SSL, and route traffic to the pelias api running internally on port 4000.  A sample of the custom nginx config is saved in this repo for posterity as nginx.conf
+In production, we added a custom nginx configuration to handle SSL, and route traffic to the pelias api running internally on port 4000.  The nginx config [Jinja2](http://jinja.pocoo.org/) template is saved in this repo as [`nginx.conf`](nginx.conf).
 
-The nginx config should be stored in /etc/nginx/conf.d/{productiondomain}.conf
+The nginx config should be stored in `/etc/nginx/conf.d/{productiondomain}.conf`
 
 This nginx config also proxies all requests that aren't API calls to the geosearch docs site, so that both the API and the docs can share the same production domain.
