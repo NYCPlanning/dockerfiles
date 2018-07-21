@@ -84,7 +84,7 @@ services:
         hard: 65536
     cap_add: [ "IPC_LOCK" ]
   tests:
-    image: pelias/acceptancetests
+    image: node:8-alpine
     container_name: pelias_acceptancetests
     build:
       context: "https://github.com/NYCPlanning/labs-geosearch-acceptance-tests.git"
