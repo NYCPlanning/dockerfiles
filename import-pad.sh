@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 # get timestamp
 PELIAS_TIMESTAMP=`date +%s`
 

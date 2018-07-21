@@ -1,3 +1,6 @@
+set -e
+set -x
+
 for INDEX in "$@"
 do
   echo "deleting index '"$INDEX"'"
