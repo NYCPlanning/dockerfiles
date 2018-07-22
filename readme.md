@@ -40,6 +40,9 @@ Before you can run the pelias services via docker, you must first get all of the
 
 For our PAD importer, there is no pre-built image, and how you include it is different in production and development.  See below for how to get the PAD importer working in each environment.
 
+### Environment Variables
+Create a `.env` file based on `.env-example` to set environment variables for the working directory and slack webhook url.
+
 ### elasticsearch database
 To start a new database:
 
@@ -62,11 +65,11 @@ The pad importer is run via docker-compose in both production and development.
 #### Running the Import
 Once the normalized PAD data has been published, follow these steps on the server to run the import. The approach for zero downtime is to import the data into a different index on the running elasticsearch database.  Once the import is complete, the rowcounts of the source csv and the new index are compared, and the new index is promoted by adding `pelias` as an alias.
 
-1) Delete old indices 
-  - Use `sh list_indices.sh` to show all indices. 
+1) Delete old indices
+  - Use `sh list_indices.sh` to show all indices.
   - Use `sh list_aliases` to see which index is currently active.  
   - Use `sh delete_index {indexname}` to delete non-active indices.
-  
+
 2) Run `import-pad.sh`, which does the following:
   - Generates a new timestamped index name: `pelias_XXXXXXXXXXX`
   - Builds nycpad-importer in a container from the latest code on github
