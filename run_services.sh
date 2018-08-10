@@ -1,11 +1,14 @@
 #!/bin/bash
 
+set -e
+set -x
+
 # start elasticsearch if it's not already running
 if ! [ $(curl --output /dev/null --silent --head --fail http://localhost:9200) ]; then
-    docker-compose up -d elasticsearch;
+    docker-compose up -d elasticsearch
 
     # wait for elasticsearch to start up
-    echo 'waiting for elasticsearch service to come up';
+    echo 'waiting for elasticsearch service to come up'
     until $(curl --output /dev/null --silent --head --fail http://localhost:9200); do
       printf '.'
       sleep 2
@@ -16,7 +19,7 @@ fi
 
 # start the containers
 # note: the -d flag will background the logs
-# docker-compose up -d interpolation;
-docker-compose up -d placeholder;
-# docker-compose up -d pip-service;
-docker-compose up -d api;
+# docker-compose up -d interpolation
+docker-compose up -d placeholder
+# docker-compose up -d pip-service
+docker-compose up -d api

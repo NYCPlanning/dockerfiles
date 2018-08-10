@@ -1,39 +1,31 @@
-version: '2'
+version: '3'
 networks:
-  pelias:
+  default:
     driver: bridge
 volumes:
   libpostaldata:
     driver: local
 services:
-  baseimage:
-    image: pelias/baseimage
-    container_name: pelias_baseimage
-    build: baseimage
-  libpostal_baseimage:
-    image: pelias/libpostal_baseimage
-    container_name: pelias_libpostal_baseimage
-    build: libpostal_baseimage
+  libpostal:
+    image: pelias/go-whosonfirst-libpostal
+    container_name: pelias_libpostal
+    restart: always
+    ports: [ "8080:8080" ]
   schema:
-    depends_on: [ "baseimage" ]
-    image: pelias/schema
+    image: pelias/schema:master
     container_name: pelias_schema
-    networks: [ "pelias" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
   api:
-    depends_on: [ "baseimage", "libpostal_baseimage" ]
-    image: pelias/api
+    image: pelias/api:master
     container_name: pelias_api
     restart: always
     environment: [ "PORT=4000" ]
     ports: [ "4000:4000" ]
-    networks: [ "pelias" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "libpostaldata:/usr/share/libpostal"
   geosearchapi:
-    depends_on: [ "baseimage" ]
     build:
       context: "https://github.com/nycplanning/labs-geosearch-api.git"
       # context: ../labs-geosearch-api # for local development
@@ -41,57 +33,47 @@ services:
     restart: always
     environment: [ "PORT=4300" ]
     ports: [ "4300:4300" ]
-    networks: [ "pelias" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
   placeholder:
-    depends_on: [ "baseimage" ]
-    image: pelias/placeholder
+    image: pelias/placeholder:master
     container_name: pelias_placeholder
     restart: always
     environment: [ "PORT=4100" ]
     ports: [ "4100:4100" ]
-    networks: [ "pelias" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
   whosonfirst:
-    depends_on: [ "baseimage" ]
-    image: pelias/whosonfirst
+    image: pelias/whosonfirst:master
     container_name: pelias_whosonfirst
-    networks: [ "pelias" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
   nycpad:
-    depends_on: [ "baseimage" ]
     build:
       context: "https://github.com/nycplanning/labs-geosearch-pad-importer.git"
       # context: ../labs-geosearch-pad-importer # for local development
     container_name: pelias_nycpad
-    networks: [ "pelias" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
   pip-service:
-    depends_on: [ "baseimage" ]
-    image: pelias/pip-service
+    image: pelias/pip-service:master
     container_name: pelias_pip-service
     restart: always
     environment: [ "PORT=4200" ]
     ports: [ "4200:4200" ]
-    networks: [ "pelias" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
   elasticsearch:
     image: pelias/elasticsearch
     container_name: pelias_elasticsearch
-    build: elasticsearch/2.4
     restart: always
     ports: [ "9200:9200", "9300:9300" ]
-    networks: [ "pelias" ]
     volumes:
+      - "./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro"
       - "${DATA_DIR}/elasticsearch:/usr/share/elasticsearch/data"
     ulimits:
       memlock:
@@ -102,7 +84,7 @@ services:
         hard: 65536
     cap_add: [ "IPC_LOCK" ]
   tests:
-    image: pelias/acceptancetests
+    image: node:8-alpine
     container_name: pelias_acceptancetests
     build:
       context: "https://github.com/NYCPlanning/labs-geosearch-acceptance-tests.git"

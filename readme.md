@@ -66,11 +66,11 @@ The pad importer is run via docker-compose in both production and development.
 Once the normalized PAD data has been published, follow these steps on the server to run the import. The approach for zero downtime is to import the data into a different index on the running elasticsearch database.  Once the import is complete, the rowcounts of the source csv and the new index are compared, and the new index is promoted by adding `pelias` as an alias.
 
 1) Delete old indices
-  - Use `sh list_indices.sh` to show all indices.
-  - Use `sh list_aliases` to see which index is currently active.  
-  - Use `sh delete_index {indexname}` to delete non-active indices.
+  - Use `./list_indices.sh` to show all indices.
+  - Use `./list_aliases.sh` to see which index is currently active.
+  - Use `./delete_index.sh {indexname}` to delete non-active indices.
 
-2) Run `import-pad.sh`, which does the following:
+2) Run `./import-pad.sh`, which does the following:
   - Generates a new timestamped index name: `pelias_XXXXXXXXXXX`
   - Builds nycpad-importer in a container from the latest code on github
   - Updates `pelias.json` with the new `indexName`
@@ -83,8 +83,8 @@ In a development environment, if you want to develop on  `geosearch-api` or `geo
 
 ## Production Domain
 
-In production, we added a [custom nginx configuration](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/nginx.conf) to handle SSL, and route traffic to the pelias api running internally on port 4000.  A sample of the custom nginx config is saved in this repo for posterity as nginx.conf
+In production, we added a custom nginx configuration to handle SSL, and route traffic to the pelias api running internally on port 4000.  The nginx config [Jinja2](http://jinja.pocoo.org/) template is saved in this repo as [`nginx.conf`](nginx.conf).
 
-The nginx config should be stored in /etc/nginx/conf.d/{productiondomain}.conf
+The nginx config should be stored in `/etc/nginx/conf.d/{productiondomain}.conf`
 
 This nginx config also proxies all requests that aren't API calls to the geosearch docs site, so that both the API and the docs can share the same production domain.
