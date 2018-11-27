@@ -7,7 +7,7 @@ set -x
 PELIAS_TIMESTAMP=`date +%s`
 
 # build nycpad docker image
-docker-compose build nycpad
+docker-compose build --pull --no-cache nycpad
 
 # set unique indexName using timestamp
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -26,7 +26,7 @@ FILENAME=$(jq .imports.nycpad.import[0].filename pelias.json | sed "s/\"//g")
 echo $FILENAME
 
 # get rowcount of downloaded CSV
-ROWCOUNT=$(wc -l < /tmp/nycpad/$FILENAME)
+ROWCOUNT=$(wc -l < /data/nycpad/$FILENAME)
 ROWCOUNT=$(($ROWCOUNT - 1)) # subtract 1 for csv header row
 echo "Row count:" $ROWCOUNT
 

@@ -1,7 +1,8 @@
 version: '3'
 networks:
   default:
-    driver: bridge
+    external: 
+      name: dockerfiles_pelias 
 volumes:
   libpostaldata:
     driver: local
@@ -12,7 +13,8 @@ services:
     restart: always
     ports: [ "8080:8080" ]
   schema:
-    image: pelias/schema:master
+    build:
+      context: https://github.com/pelias/schema.git#v3.16.0
     container_name: pelias_schema
     volumes:
       - "./pelias.json:/code/pelias.json"

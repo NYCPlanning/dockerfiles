@@ -5,7 +5,7 @@
     }]
   },
   "schema": {
-    "indexName": "pelias_1516830533"
+    "indexName": "pelias_1543351399"
   },
   "api": {
     "textAnalyzer": "libpostal",
