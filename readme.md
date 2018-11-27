@@ -88,3 +88,9 @@ In production, we added a custom nginx configuration to handle SSL, and route tr
 The nginx config should be stored in `/etc/nginx/conf.d/{productiondomain}.conf`
 
 This nginx config also proxies all requests that aren't API calls to the geosearch docs site, so that both the API and the docs can share the same production domain.
+
+## Update Notes 27 November 2018
+
+Updated to PAD 18D.  Newest version of pelias schema includes strict mapping, which would not allow us to append `meta` information when importing, so we added an explicit tag for schema in `docker-compose.yml`.
+
+Connect to server and ran sudo sh ./import-pad.sh.  Tests didn't complete and slack messages didn't work, but the new index was created and populated.  Manually swapped out the aliases using curl.  This workflow needs a lot of work and testing.
